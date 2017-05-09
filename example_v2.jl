@@ -1,7 +1,7 @@
 # Example usage of emd
 using WAV
 using PyPlot
-include("emd.jl")
+include("emd_v2.jl")
 include("mhs.jl")
 
 
