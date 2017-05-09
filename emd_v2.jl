@@ -41,35 +41,50 @@ function Single_IMF(signal, maxIter = 70, threshold = 0.02)
     min_values = IMF[min_ind]
     max_values = IMF[max_ind]
 
-    # println(size(min_ind), size(max_values))
-    if length(min_ind) > 3
-      itp_env_min = Spline1D(min_ind, min_values)
-      env_min = itp_env_min(samples)
-    elseif length(min_ind) == 3
-      itp_env_min = Spline1D(min_ind, min_values; k = 2)
-      env_min = itp_env_min(samples)
-    elseif length(min_ind) == 2
-      itp_env_min = Spline1D(min_ind, min_values; k = 1)
-      env_min = itp_env_min(samples)
+    N_min = length(min_ind)
+    N_max = length(max_ind)
+
+    if N_min > N_max
+      mean_points_ind = zeros(N_min)
+      mean_points_val = zeros(N_min)
+
+      for i in 1:N_max
+        mean_points_ind = (min_ind[i] + max_ind[i])/2
+        mean_points_val = (min_values[i] + max_values[i])/2
+      end
+      # Then use last point of maximals
+      for i in N_max+1:N_min
+        mean_points_ind = (min_ind[i] + max_ind[N_max])/2
+        mean_points_val = (min_values[i] + max_values[N_max])/2
     else
-      env_min = min_values[1]*samples
+      mean_points_ind = zeros(N_max)
+      mean_points_val = zeros(N_max)
+
+      for i in 1:N_min
+        mean_points_ind = (min_ind[i] + max_ind[i])/2
+        mean_points_val = (min_values[i] + max_values[i])/2
+      end
+      # Then use last point of maximals
+      for i in N_min+1:N_max
+        mean_points_ind = (min_ind[N_min] + max_ind[i])/2
+        mean_points_val = (min_values[N_min] + max_values[i])/2
     end
 
-    # println(size(max_ind), size(max_values))
-    if length(max_ind) > 3
-      itp_env_max = Spline1D(max_ind, max_values)
-      env_max = itp_env_max(samples)
-    elseif length(max_ind) == 3
-      itp_env_max = Spline1D(max_ind, max_values; k = 2)
-      env_max = itp_env_max(samples)
-    elseif length(max_ind) == 2
-      itp_env_max = Spline1D(max_ind, max_values; k = 1)
-      env_max = itp_env_max(samples)
-    else
-      env_max = max_values[1]*samples
-    end
 
-    env_mean = (env_min + env_max) ./ 2.0
+
+    if length(mean_points_ind) > 3
+      itp_env = Spline1D(mean_points_ind, mean_points_val)
+      env_mean = itp_env_min(samples)
+    elseif length(mean_points_ind) == 3
+      itp_env = Spline1D(mean_points_ind, mean_points_val)
+      env_mean = itp_env_min(samples)
+    elseif length(mean_points_ind) == 2
+      itp_env = Spline1D(mean_points_ind, mean_points_val)
+      env_mean = itp_env_min(samples)
+    else
+      env_mean = mean_points_val[1]*samples
+    end
+    
     # println(env_mean)
     IMF = IMF - env_mean
     # println(i)
