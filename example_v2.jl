@@ -6,9 +6,8 @@ include("mhs.jl")
 
 
 # filename = "/home/heming/MEGA/Research/sounds/ocean.wav"
-# filename = "/home/heming/MEGA/Research/sounds/chirp-150-190-linear.wav"
-# filename = "/home/heming/MEGA/Research/sounds/piano.wav"
-filename = "/home/heming/MEGA/Research/sounds/bendir.wav"
+filename = "/home/heming/MEGA/Research/sounds/piano.wav"
+# filename = "/home/heming/MEGA/Research/sounds/bendir.wav"
 
 
 s, fs = wavread(filename)
