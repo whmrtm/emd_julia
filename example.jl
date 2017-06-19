@@ -6,13 +6,22 @@ include("mhs.jl")
 
 
 # filename = "/home/heming/MEGA/Research/sounds/ocean.wav"
-filename = "/home/heming/MEGA/Research/sounds/piano.wav"
+# filename = "/home/heming/MEGA/Research/sounds/piano.wav"
 # filename = "/home/heming/MEGA/Research/sounds/bendir.wav"
 
+# s, fs = wavread(filename)
 
-s, fs = wavread(filename)
 
-signal = s[2001:4000]
+# Chirp signal
+# x = linspace(0,2,2/0.01+1)
+# s = sin(2*pi.*(3.*x+17./4.*x.*x))
+
+# Sine product
+x = linspace(0,2,2/0.01+1)
+s = 4*sin(20*pi.*x).*sin(0.2*pi.*x)
+
+# signal = s[2001:4000]
+signal = s
 IMF, residule = emd(signal, 5)
 
 

@@ -15,7 +15,7 @@ function emd(signal, numIMF)
   return IMF, residule
 end
 
-function Single_IMF(signal, maxIter = 70, threshold = 0.02)
+function Single_IMF(signal, maxIter = 70, threshold = 0.1)
   # Find the single IMF of a signal
 
   L = length(signal)
@@ -38,6 +38,9 @@ function Single_IMF(signal, maxIter = 70, threshold = 0.02)
     if length(min_ind) == 0
       break
     end
+
+    min_ind = [1;min_ind;L]
+    max_ind = [1;max_ind;L]
     min_values = IMF[min_ind]
     max_values = IMF[max_ind]
 
@@ -98,7 +101,6 @@ function find_extreme(signal)
   d2 = s_diff[2:L]
   indMin = find((d1.*d2.<0) & (d1.<0)) + 1
   indMax = find((d1.*d2.<0) & (d1.>0)) + 1
-
   # return [indMin s[indMin]], [indMax s[indMax]]
   return indMin, indMax
 end
@@ -121,4 +123,50 @@ function plot_IMF(IMF, residule)
   subplot(N,1,N)
   plot(residule)
   title("Residule")
+end
+
+
+
+function mean_env(signal)
+  # Find mean envelope, min envelope and max envelope
+  L = length(signal)
+  samples = linspace(1, L ,L)
+
+  min_ind, max_ind = find_extreme(signal)
+  min_ind = [1;min_ind;L]
+  max_ind = [1;max_ind;L]
+
+  min_values = signal[min_ind]
+  max_values = signal[max_ind]
+
+  if length(min_ind) > 3
+    itp_env_min = Spline1D(min_ind, min_values)
+    env_min = itp_env_min(samples)
+  elseif length(min_ind) == 3
+    itp_env_min = Spline1D(min_ind, min_values; k = 2)
+    env_min = itp_env_min(samples)
+  elseif length(min_ind) == 2
+    itp_env_min = Spline1D(min_ind, min_values; k = 1)
+    env_min = itp_env_min(samples)
+  else
+    env_min = min_values[1]*samples
+  end
+
+  # println(size(max_ind), size(max_values))
+  if length(max_ind) > 3
+    itp_env_max = Spline1D(max_ind, max_values)
+    env_max = itp_env_max(samples)
+  elseif length(max_ind) == 3
+    itp_env_max = Spline1D(max_ind, max_values; k = 2)
+    env_max = itp_env_max(samples)
+  elseif length(max_ind) == 2
+    itp_env_max = Spline1D(max_ind, max_values; k = 1)
+    env_max = itp_env_max(samples)
+  else
+    env_max = max_values[1]*samples
+  end
+
+  env_mean = (env_min + env_max) ./ 2.0
+
+  return env_mean, env_max, env_min
 end
